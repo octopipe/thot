@@ -1,3 +1,4 @@
+import uuid
 from typing import Callable, Dict, List
 from term import Term
 from tokenizer import Tokenizer
@@ -9,22 +10,22 @@ class Indexer:
     def add_doc(
         self,
         doc: Dict,
-        terms: Dict[str, Term] = dict(),
-        fields: List[str] = ['text'],
-        reference_field = 'id'):
+        index_fields: List[str],
+        save_field: str,
+        terms: Dict[str, Term] = dict()):
 
         tokens = []
-        document_reference = doc[reference_field]
+        document_id = uuid.uuid4()
 
-        for field in fields:
+        for field in index_fields:
             current_tokens = self.__tokenizer.tokenize(doc[field])
             tokens += current_tokens
 
         for token in tokens:
             if token in terms:
-                terms[token].add_reference(document_reference)
+                terms[token].add_reference(document_id)
             else:
-                terms[token] = Term(token, [document_reference])
+                terms[token] = Term(token, [document_id])
 
         return terms
 
